@@ -7,7 +7,8 @@ const {
     actualizarTienda,
     eliminarTienda,
     subirImagen,
-    politicasEmpresa
+    politicasEmpresa,
+    cambiarColoresTienda
 } = require('../controllers/tienda.controllers');
 const auth = require('../middleware/auth');
 
@@ -20,5 +21,7 @@ router.route('/politicas/:idTienda').put(auth,politicasEmpresa);
 router.route('/:idTienda')
     .put(auth,subirImagen,actualizarTienda)
     .delete(auth,eliminarTienda)
+
+router.route('/editar/colors/:idTienda').put(auth,cambiarColoresTienda);
 
 module.exports = router;

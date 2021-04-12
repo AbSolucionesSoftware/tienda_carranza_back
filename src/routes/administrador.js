@@ -6,10 +6,9 @@ const auth = require('../middleware/auth');
 router.route('/auth')
 .post(authAdmin);
 
-
 router.route('/')
     .get(auth,getAdmins)//Get all admin dates
-    .post(auth,gcreateAdmin);//Add a admin 
+    .post(auth,createAdmin);//Add a admin 
 
 
 router.route('/:id')
