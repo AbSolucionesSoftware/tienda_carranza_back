@@ -60,6 +60,10 @@ const TiendaSchema = new Schema({
             background: String,
             hoverText: String
         },
+        footer: {
+            text: String,
+            background: String,
+        },
         bodyPage: {
             text: String,
             background: String,
