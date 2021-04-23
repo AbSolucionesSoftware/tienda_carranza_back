@@ -82,11 +82,12 @@ homeCtrl.homaQuerysShop = async (req,res) => {
 				for (i = 0; i < categorias.length; i++) {
 					if (categorias[i]._id !== null) {
 						if (categorias[i]._id) {
-						const subCategoriasBase =await Producto.aggregate(
+							const subCategoriasBase =await Producto.aggregate(
 								[
 									{
 										$match: {
-											$or: [ { categoria: categorias[i]._id } ]
+											$or: [{ eliminado: { $exists: false } }, { eliminado: false } ],
+											$and: [ { categoria: categorias[i]._id }]
 										}
 									},
 									{
