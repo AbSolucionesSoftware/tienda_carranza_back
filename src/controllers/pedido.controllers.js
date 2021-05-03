@@ -4,6 +4,7 @@ const pedidoModel = require('../models/Pedido');
 const email = require('../middleware/sendEmail');
 const Tienda = require('../models/Tienda');
 const politicasModel = require('../models/PoliticasEnvio');
+const Carrito = require('../models/Carrito');
 const adminModel = require("../models/Administrador");
 
 pedidoCtrl.getPedidos = async (req, res, next) => {
@@ -110,6 +111,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         
         let pedidos = ``;
         let subTotal = 0;
+        let politicasBase = 0;
         
         
         for(let i = 0; i < pedidoPopulate.pedido.length; i++){
@@ -129,6 +131,12 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
                 <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;"> $ ${pedidoPopulate.pedido[i].precio}</p></td>
             </tr>
             `;
+        }
+
+        if(politicas.length > 0){
+            politicasBase = politicas[0];
+        }else{
+            politicasBase = '';
         }
 
         const htmlContentAdmin = `
@@ -151,12 +159,15 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
                     ${pedidos}
                 </table>
                 <h3 style=" margin:auto; margin-left: 360px;"><strong>Sub total: </strong>$ ${subTotal}</h3>
-                <h3 style=" margin:auto; margin-left: 360px;"><strong>Costo de envio: </strong>$ ${politicas[0].costoEnvio}</h3>
-                ${subTotal >= politicas[0].promocionEnvio ? 
-                `<h3 style=" color: #CC2300; margin:auto; margin-left: 360px;"><strong>Descuento: </strong>- $${politicas[0].descuento}</h3>`    
-                :"" }
-                <h3 style=" color: #2DD703; margin:auto; margin-left: 360px;"><strong>Total: </strong>$ ${pedidoPopulate.total}</h3>
-                
+                ${politicas.length > 0 ? `
+                    <h3 style=" margin:auto; margin-left: 360px;"><strong>Costo de envio: </strong>$ ${politicas[0].costoEnvio}</h3>
+                    ${subTotal >= politicas[0].promocionEnvio ? 
+                    `<h3 style=" color: #CC2300; margin:auto; margin-left: 360px;"><strong>Descuento: </strong>- $${politicas[0].descuento}</h3>`    
+                    :"" }
+                    <h3 style=" color: #2DD703; margin:auto; margin-left: 360px;"><strong>Total: </strong>$ ${pedidoPopulate.total}</h3>`
+                :`
+                    <h3 style=" color: #2DD703; margin:auto; margin-left: 360px;"><strong>Total: </strong>$ ${pedidoPopulate.total}</h3>
+                `}
             </div>
             <div style="margin:auto; max-width: 550px; height: 100px;">
                 <p style="padding: 10px 0px;">Ya estamos trabajando para mandar tu pedido, si tienes alguna duda no dudes en contactarnos.</p>
