@@ -88,11 +88,11 @@ pedidoCtrl.getPedidosUser = async (req, res, next) => {
 pedidoCtrl.generatePedidoPagado = async (req,res) => {
     try {
         const { pedidoCompleto } = req.body;
-        console.log(pedidoCompleto);
         await pedidoModel.findByIdAndUpdate(pedidoCompleto._id,{pagado: true, tipo_pago: "Pago en efectivo."});
 
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
         
+        console.log("si entro a line 95;");
 
         if(pedidoCompleto.carrito === true){
             await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
@@ -161,7 +161,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         </div>
         `;
 
-        const htmlContentUser = `
+/*         const htmlContentUser = `
         <div>
             <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tu orden esta en proceso</h3>
             <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">La orden esta siendo procesada, si tienes alguna duda no dudes en contactarnos.</h4>
@@ -188,9 +188,9 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
                 
             </div>
         </div>
-        `;
+        `; */
         
-        email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
+        // email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
 
         email.sendEmail(admin[0].email,"Orden realizada",htmlContentAdmin,tienda[0].nombre);
 
