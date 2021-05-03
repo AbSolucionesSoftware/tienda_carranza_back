@@ -91,13 +91,12 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         await pedidoModel.findByIdAndUpdate(pedidoCompleto._id,{pagado: true, tipo_pago: "Pago en efectivo."});
 
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
-        
-        console.log("si entro a line 95;");
 
         if(pedidoCompleto.carrito === true){
             await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
         }
         const admin = await adminModel.find({});
+        console.log("si entro a line 99;");
         const tienda = await Tienda.find();
         const pedidoPopulate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente").populate({
             path: 'pedido.producto',
