@@ -4,6 +4,7 @@ const pedidoModel = require('../models/Pedido');
 const email = require('../middleware/sendEmail');
 const Tienda = require('../models/Tienda');
 const politicasModel = require('../models/PoliticasEnvio');
+const adminModel = require("../models/Administrador");
 
 pedidoCtrl.getPedidos = async (req, res, next) => {
     try {
@@ -95,9 +96,12 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         if(pedidoCompleto.carrito === true){
             await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
         }
+
+        
         const admin = await adminModel.find({});
-        console.log("si entro a line 99;");
+        
         const tienda = await Tienda.find();
+        console.log("si entro a line 99;");
         const pedidoPopulate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente").populate({
             path: 'pedido.producto',
             model: 'producto'
