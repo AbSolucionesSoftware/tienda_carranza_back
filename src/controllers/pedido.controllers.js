@@ -133,12 +133,6 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             `;
         }
 
-        if(politicas.length > 0){
-            politicasBase = politicas[0];
-        }else{
-            politicasBase = '';
-        }
-
         const htmlContentAdmin = `
         <div>
             
@@ -200,6 +194,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             </div>
         </div>
         `;
+        console.log(pedidoPopulate.cliente.email);
         
         email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
 
