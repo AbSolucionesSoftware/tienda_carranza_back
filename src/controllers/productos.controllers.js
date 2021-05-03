@@ -664,6 +664,7 @@ productosCtrl.getProductosFiltrosDividos = async (req, res) => {
 					if (!postStored) {
 						res.status(404).json({ message: 'Error al mostrar Productos' });
 					} else {
+						console.log(postStored);
 						res.status(200).json({ posts: postStored });
 					}
 				}
