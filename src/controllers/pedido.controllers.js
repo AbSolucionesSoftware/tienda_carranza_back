@@ -92,7 +92,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         await pedidoModel.findByIdAndUpdate(pedidoCompleto._id,{pagado: true, tipo_pago: "Pago en efectivo."});
 
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
-        res.status(200).json({ message: 'Apartado creado', nuevoPedido });
+        
 
         if(pedidoCompleto.carrito === true){
             await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
@@ -130,9 +130,6 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
 
         const htmlContentAdmin = `
         <div>
-            <div style="margin:auto; max-width: 550px; height: 100px;">
-                ${tienda[0].imagenLogo ? `<img style="max-width: 200px; display:block; margin:auto; padding: 10px 0px;" src="${process.env.URL_IMAGEN_AWS}${tienda[0].imagenLogo}" />`:""} 
-            </div>
             
             <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tienes una nueva orden.</h3>
             <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">El cliente espera su orden.</h4>
@@ -166,10 +163,6 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
 
         const htmlContentUser = `
         <div>
-            <div style="margin:auto; max-width: 550px; height: 100px;">
-                ${tienda[0].imagenLogo ? `<img style="max-width: 200px; display:block; margin:auto; padding: 10px 0px;" src="${process.env.URL_IMAGEN_AWS}${tienda[0].imagenLogo}" />`:""} 
-            </div>
-            
             <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tu orden esta en proceso</h3>
             <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">La orden esta siendo procesada, si tienes alguna duda no dudes en contactarnos.</h4>
     
@@ -200,6 +193,9 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
 
         email.sendEmail(admin[0].email,"Orden realizada",htmlContentAdmin,tienda[0].nombre);
+
+        res.status(200).json({ message: 'Apartado creado', nuevoPedido });
+
     } catch (error) {
         res.status(500).json({ message: 'Ups, algo paso al generar la orden', error });
     }
