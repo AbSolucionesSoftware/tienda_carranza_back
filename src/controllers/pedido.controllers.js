@@ -85,6 +85,126 @@ pedidoCtrl.getPedidosUser = async (req, res, next) => {
     }
 }
 
+pedidoCtrl.generatePedidoPagado = async (req,res) => {
+    try {
+        const { pedidoCompleto } = req.body;
+        console.log(pedidoCompleto);
+        await pedidoModel.findByIdAndUpdate(pedidoCompleto._id,{pagado: true, tipo_pago: "Pago en efectivo."});
+
+        const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
+        res.status(200).json({ message: 'Apartado creado', nuevoPedido });
+
+        if(pedidoCompleto.carrito === true){
+            await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
+        }
+        const admin = await adminModel.find({});
+        const tienda = await Tienda.find();
+        const pedidoPopulate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente").populate({
+            path: 'pedido.producto',
+            model: 'producto'
+        })
+        const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
+        
+        let pedidos = ``;
+        let subTotal = 0;
+        
+        
+        for(let i = 0; i < pedidoPopulate.pedido.length; i++){
+            subTotal += parseFloat(pedidoPopulate.pedido[i].precio);
+            pedidos += `
+            <tr>
+                <td style="  padding: 15px; text-align: left;"><img style="max-width: 150px; display:block; margin:auto;" class="" src="${process.env.URL_IMAGEN_AWS}${pedidoPopulate.pedido[i].producto.imagen}" /></td>
+                <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;" > ${pedidoPopulate.pedido[i].producto.nombre}</p></td>
+                <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;"> ${pedidoPopulate.pedido[i].cantidad}</p></td>
+                <td style="  padding: 15px; text-align: left;">
+                    ${pedidoPopulate.pedido[i].numero || pedidoPopulate.pedido[i].talla ? pedidoPopulate.pedido[i].numero ? 
+                        `<p style="text-align: center; font-family: sans-serif;"> ${pedidoPopulate.pedido[i].numero}</p>` : 
+                        `<p style="text-align: center; font-family: sans-serif;"> ${pedidoPopulate.pedido[i].talla}</p>`:
+                        `<p style="text-align: center; font-family: sans-serif;"><span style="font-weight: bold;">No aplica</span></p>`
+                    }
+                </td>
+                <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;"> $ ${pedidoPopulate.pedido[i].precio}</p></td>
+            </tr>
+            `;
+        }
+
+        const htmlContentAdmin = `
+        <div>
+            <div style="margin:auto; max-width: 550px; height: 100px;">
+                ${tienda[0].imagenLogo ? `<img style="max-width: 200px; display:block; margin:auto; padding: 10px 0px;" src="${process.env.URL_IMAGEN_AWS}${tienda[0].imagenLogo}" />`:""} 
+            </div>
+            
+            <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tienes una nueva orden.</h3>
+            <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">El cliente espera su orden.</h4>
+    
+            <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px; font-weight: bold;">Detalle de la orden:</h3>
+            <div style="margin:auto; max-width: 550px;">
+                <table >
+                    <tr>
+                        
+                        <td style="  padding: 15px; text-align: left;"><strong>Producto</strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong></strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong>Cantidad</strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong>Medida</strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong>Precio</strong></td>
+                    </tr>
+                    ${pedidos}
+                </table>
+                <h3 style=" margin:auto; margin-left: 360px;"><strong>Sub total: </strong>$ ${subTotal}</h3>
+                <h3 style=" margin:auto; margin-left: 360px;"><strong>Costo de envio: </strong>$ ${politicas[0].costoEnvio}</h3>
+                ${subTotal >= politicas[0].promocionEnvio ? 
+                `<h3 style=" color: #CC2300; margin:auto; margin-left: 360px;"><strong>Descuento: </strong>- $${politicas[0].descuento}</h3>`    
+                :"" }
+                <h3 style=" color: #2DD703; margin:auto; margin-left: 360px;"><strong>Total: </strong>$ ${pedidoPopulate.total}</h3>
+                
+            </div>
+            <div style="margin:auto; max-width: 550px; height: 100px;">
+                <p style="padding: 10px 0px;">Ya estamos trabajando para mandar tu pedido, si tienes alguna duda no dudes en contactarnos.</p>
+            </div>
+        </div>
+        `;
+
+        const htmlContentUser = `
+        <div>
+            <div style="margin:auto; max-width: 550px; height: 100px;">
+                ${tienda[0].imagenLogo ? `<img style="max-width: 200px; display:block; margin:auto; padding: 10px 0px;" src="${process.env.URL_IMAGEN_AWS}${tienda[0].imagenLogo}" />`:""} 
+            </div>
+            
+            <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tu orden esta en proceso</h3>
+            <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">La orden esta siendo procesada, si tienes alguna duda no dudes en contactarnos.</h4>
+    
+            <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px; font-weight: bold;">Detalle de la orden:</h3>
+            <div style="margin:auto; max-width: 550px;">
+                <table >
+                    <tr>
+                        
+                        <td style="  padding: 15px; text-align: left;"><strong>Producto</strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong></strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong>Cantidad</strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong>Medida</strong></td>
+                        <td style="  padding: 15px; text-align: left;"><strong>Precio</strong></td>
+                    </tr>
+                    ${pedidos}
+                </table>
+                <h3 style=" margin:auto; margin-left: 360px;"><strong>Sub total: </strong>$ ${subTotal}</h3>
+                <h3 style=" margin:auto; margin-left: 360px;"><strong>Costo de envio: </strong>$ ${politicas[0].costoEnvio}</h3>
+                ${subTotal >= politicas[0].promocionEnvio ? 
+                `<h3 style=" color: #CC2300; margin:auto; margin-left: 360px;"><strong>Descuento: </strong>- $${politicas[0].descuento}</h3>`    
+                :"" }
+                <h3 style=" color: #2DD703; margin:auto; margin-left: 360px;"><strong>Total: </strong>$ ${pedidoPopulate.total}</h3>
+                
+            </div>
+        </div>
+        `;
+        
+        email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
+
+        email.sendEmail(admin[0].email,"Orden realizada",htmlContentAdmin,tienda[0].nombre);
+    } catch (error) {
+        res.status(500).json({ message: 'Ups, algo paso al generar la orden', error });
+    }
+}
+
 pedidoCtrl.createPedido = async (req, res, next) => {
 
 /*     newpedido.estado_pedido = "En proceso";

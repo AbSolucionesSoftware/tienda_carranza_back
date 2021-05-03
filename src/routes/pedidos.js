@@ -2,7 +2,7 @@ const { Router } = require('express');
 const router = Router();
 const auth = require('../middleware/auth')
 
-const { createPedido, getPedidos, updateEstadoPedido, getPedidosUser, getTodosPedidosUser, getPedido, getPedidosAdmin, getPedidosAdminFiltrados, updatePedido } = require('../controllers/pedido.controllers');
+const { createPedido, getPedidos, updateEstadoPedido, getPedidosUser, getTodosPedidosUser, getPedido, getPedidosAdmin, getPedidosAdminFiltrados, updatePedido, generatePedidoPagado } = require('../controllers/pedido.controllers');
 
 router.route('/').post(auth,createPedido).get(auth,getPedidos);
 
@@ -24,6 +24,7 @@ router.route('/pedido/total/:id')
 router.route('/info/:id')
     .put(auth,updateEstadoPedido);
 
+router.route('/entrega/realizado').post(auth,generatePedidoPagado);
 
 
 
