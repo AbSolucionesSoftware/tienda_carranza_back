@@ -530,7 +530,7 @@ productosCtrl.getProductosFiltrosDividos = async (req, res) => {
 				$or: [ { eliminado: { $exists: false } }, { eliminado: false } ],
 				$and: [
 					{ categoria: { $regex: '.*' + categoria + '.*', $options: 'i' } },
-					{ subCategoria: { $regex: '.*' + subcategoria + '.*', $options: 'i' } }
+					{ subCategoria: subcategoria }
 				]
 			};
 		} else if (categoria && subcategoria && genero && !temporada) {
