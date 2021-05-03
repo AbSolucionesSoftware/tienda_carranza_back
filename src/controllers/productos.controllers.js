@@ -516,7 +516,7 @@ productosCtrl.getProductoSinPaginacion = async (req, res) => {
 productosCtrl.getProductosFiltrosDividos = async (req, res) => {
 	try {
 		const { categoria = '', subcategoria = '', genero = '', temporada = '' } = req.query;
-		console.log(req.query);
+		
 		var match = {};
 
 		if (categoria && !subcategoria && !genero && !temporada) {
@@ -525,7 +525,6 @@ productosCtrl.getProductosFiltrosDividos = async (req, res) => {
 				$and: [ { categoria: { $regex: '.*' + categoria + '.*', $options: 'i' } } ]
 			};
 		} else if (categoria && subcategoria && !genero && !temporada) {
-			console.log(categoria,subcategorias);
 			match = {
 				$or: [ { eliminado: { $exists: false } }, { eliminado: false } ],
 				$and: [
@@ -671,6 +670,7 @@ productosCtrl.getProductosFiltrosDividos = async (req, res) => {
 		);
 	} catch (err) {
 		res.status(500).json({ message: 'Error en el servidor', err });
+		console.log(err);
 	}
 };
 
