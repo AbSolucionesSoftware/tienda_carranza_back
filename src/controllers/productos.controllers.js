@@ -516,6 +516,7 @@ productosCtrl.getProductoSinPaginacion = async (req, res) => {
 productosCtrl.getProductosFiltrosDividos = async (req, res) => {
 	try {
 		const { categoria = '', subcategoria = '', genero = '', temporada = '' } = req.query;
+		console.log(req.query);
 		var match = {};
 
 		if (categoria && !subcategoria && !genero && !temporada) {
