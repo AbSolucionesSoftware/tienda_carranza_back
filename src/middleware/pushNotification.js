@@ -23,6 +23,7 @@ pushNotificationCtrl.sendNotification = async (expoPushTokens,title_push,body_pu
               });
         })
     } catch (error) {
+        console.log(error);
         return error;
     }
 }
