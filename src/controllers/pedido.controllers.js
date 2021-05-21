@@ -265,7 +265,7 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
         }else{
             const {estado_pedido,mensaje_admin,url,paqueteria,codigo_seguimiento} = req.body;
             if(estado_pedido === "Enviado"){
-                const pedido = await pedidoModel.findByIdAndUpdate({ _id: req.params.id }, {
+                 await pedidoModel.findByIdAndUpdate({ _id: req.params.id }, {
                     fecha_envio: new Date(),
                     estado_pedido,
                     mensaje_admin,
@@ -275,6 +275,7 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                 }, { new: true });
                 res.status(200).json({ message: 'Pedido Actualizado'});
 
+                console.log(pedidoPagado);
                 
                 await sendNotification(
                     pedidoPagado.cliente.expoPushTokens,
