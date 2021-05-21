@@ -265,7 +265,7 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
         }else{
             const {estado_pedido,mensaje_admin,url,paqueteria,codigo_seguimiento} = req.body;
             if(estado_pedido === "Enviado"){
-                console.log(llego);
+                console.log("llego");
                 const tienda = await Tienda.find();
                 const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
                     path: 'pedido.producto',
