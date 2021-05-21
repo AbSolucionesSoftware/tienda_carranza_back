@@ -276,7 +276,7 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                 res.status(200).json({ message: 'Pedido Actualizado'});
 
                 
-                sendNotification(
+                await sendNotification(
                     pedidoPagado.cliente.expoPushTokens,
                     "Orden enviada",
                     "Tu orden esta en camino, pronto llegara a tu domicilio.",
@@ -354,7 +354,7 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     estado_pedido
                 }, { new: true });
                 res.status(200).json({ message: 'Pedido Actualizado'});
-                sendNotification(
+                await sendNotification(
                     pedidoPagado.cliente.expoPushTokens,
                     "Orden entregada",
                     "Tu orden a sido entregada, espero la disfrutes!!",
