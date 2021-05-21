@@ -90,7 +90,7 @@ pedidoCtrl.getPedidosUser = async (req, res, next) => {
 pedidoCtrl.generatePedidoPagado = async (req,res) => {
     try {
         const { pedidoCompleto } = req.body;
-        // console.log(pedidoCompleto.cliente.direccion);
+        console.log(pedidoCompleto);
         const pedidoUpdate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente");
         const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
         const admin = await adminModel.find({});
@@ -100,14 +100,14 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             model: 'producto'
         });
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
-
+        console.log(pedidoUpdate.cliente.expoPushTokens);
         sendNotification(
             pedidoUpdate.cliente.expoPushTokens,
             "Orden realizada",
             "Tu orden esta en proceso, llegara en breve a tu domicilio.",
             {}
         );
-        
+
         const direction = {
             calle_numero: "",
             entre_calles: "",
