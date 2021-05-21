@@ -798,7 +798,7 @@ clienteCtrl.desAunth = async (req,res) => {
     const cliente = await clienteModel.findById(req.params.id);
     if(cliente){
       if(cliente.expoPushTokens.length > 0){
-          cliente.expoPushTokens.map((movil) => {
+          cliente.expoPushTokens.map(async (movil) => {
               if(movil.expoPushToken === expoPushToken){
                 await clienteModel.updateOne(
                   {

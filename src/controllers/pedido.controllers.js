@@ -92,6 +92,14 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         const { pedidoCompleto } = req.body;
         // console.log(pedidoCompleto.cliente.direccion);
         const pedidoUpdate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente");
+        const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
+        const admin = await adminModel.find({});
+        const tienda = await Tienda.find();
+        const pedidoPopulate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente").populate({
+            path: 'pedido.producto',
+            model: 'producto'
+        });
+        const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
         const direction = {
             calle_numero: "",
             entre_calles: "",
@@ -112,34 +120,16 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
                 direction.pais = pedidoUpdate.cliente.direccion[0].pais;
             }
         }
-        await pedidoModel.findByIdAndUpdate(pedidoCompleto._id, {direccion: direction});
-
-        
+        await pedidoModel.findByIdAndUpdate(pedidoCompleto._id, {direccion: direction});        
         // console.log(pedidoCompleto.cliente.direccion);
         await pedidoModel.findByIdAndUpdate(pedidoCompleto._id,{pagado: true, tipo_pago: "Pago en efectivo."});
-
-        const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
         // console.log(nuevoPedido);
         if(pedidoCompleto.carrito === true){
             await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
         }
-
-        
-        const admin = await adminModel.find({});
-        
-        const tienda = await Tienda.find();
-        // console.log("si entro a line 99;");
-        const pedidoPopulate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente").populate({
-            path: 'pedido.producto',
-            model: 'producto'
-        })
-        const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
-        
         let pedidos = ``;
         let subTotal = 0;
         let politicasBase = 0;
-        
-        
         for(let i = 0; i < pedidoPopulate.pedido.length; i++){
             subTotal += parseFloat(pedidoPopulate.pedido[i].precio * pedidoPopulate.pedido[i].cantidad);
             pedidos += `
@@ -158,10 +148,8 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             </tr>
             `;
         }
-
         const htmlContentAdmin = `
         <div>
-            
             <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tienes una nueva orden.</h3>
             <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">El cliente espera su orden.</h4>
     
@@ -169,7 +157,6 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             <div style="margin:auto; max-width: 550px;">
                 <table >
                     <tr>
-                        
                         <td style="  padding: 15px; text-align: left;"><strong>Producto</strong></td>
                         <td style="  padding: 15px; text-align: left;"><strong></strong></td>
                         <td style="  padding: 15px; text-align: left;"><strong>Cantidad</strong></td>
@@ -220,8 +207,15 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             </div>
         </div>
         `;
+
+        sendNotification(
+            pedidoUpdate.cliente.expoPushTokens,
+            "Orden realizada",
+            "Tu orden esta en proceso, llegara en breve a tu domicilio.",
+            {}
+        );
+
         // console.log(pedidoPopulate.cliente.email);
-        
         email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
 
         email.sendEmail(admin[0].email,"Orden realizada",htmlContentAdmin,tienda[0].nombre);
@@ -262,7 +256,7 @@ pedidoCtrl.createPedido = async (req, res, next) => {
 
 pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
     try {
-        const pedidoPagado = await pedidoModel.findById(req.params.id);
+        const pedidoPagado = await pedidoModel.findById(req.params.id).populate("cliente");
         if(pedidoPagado.pagado === false){
             res.status(500).json({ message: 'Este pedido aun no a sido pagado'});
         }else{
@@ -277,6 +271,14 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     codigo_seguimiento
                 }, { new: true });
                 res.status(200).json({ message: 'Pedido Actualizado'});
+
+                
+                sendNotification(
+                    pedidoPagado.cliente.expoPushTokens,
+                    "Orden enviada",
+                    "Tu orden esta en camino, pronto llegara a tu domicilio.",
+                    pedidoCompleto
+                );
 
                 const tienda = await Tienda.find();
                 const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
@@ -349,17 +351,20 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     estado_pedido
                 }, { new: true });
                 res.status(200).json({ message: 'Pedido Actualizado'});
-
+                sendNotification(
+                    pedidoPagado.cliente.expoPushTokens,
+                    "Orden entregada",
+                    "Tu orden a sido entregada, espero la disfrutes!!",
+                    {}
+                );
                 const tienda = await Tienda.find();
                 const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
                     path: 'pedido.producto',
                     model: 'producto'
                 })
                 const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
-                
                 let pedidos = ``;
                 let subTotal = 0;
-                
                 for(let i = 0; i < pedidoPopulate.pedido.length; i++){
                     subTotal += (parseFloat(pedidoPopulate.pedido[i].cantidad) * parseFloat(pedidoPopulate.pedido[i].precio));
                     pedidos += `
@@ -378,7 +383,6 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     </tr>
                     `;
                 }
-    
                 const htmlContentUser = `
                 <div>
                     <div style="margin:auto; max-width: 550px; height: 100px;">

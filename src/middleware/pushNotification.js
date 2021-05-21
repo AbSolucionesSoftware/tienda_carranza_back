@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 
 pushNotificationCtrl.sendNotification = async (expoPushTokens,title_push,body_push,data) => {
     try {
-        expoPushTokens.map((moviles) => {
+        expoPushTokens.map(async (moviles) => {
             const message = {
                 to: moviles.expoPushToken,
                 sound: 'default',

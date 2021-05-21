@@ -7,6 +7,7 @@ const clienteModel = require('../models/Cliente');
 const adminModel = require('../models/Administrador');
 const Tienda = require('../models/Tienda');
 const Carrito = require('../models/Carrito');
+const { sendNotification } = require("../middleware/pushNotification");
 
 apartadoCtrl.agregarApartado = async (req, res) => {
 	console.log(req.body);
@@ -157,6 +158,13 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 	</div>
 	`;
 
+	sendNotification(
+		clienteBase.expoPushTokens,
+		"Tu apartado esta siendo procesado.",
+		"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
+		newApartado
+	);
+
 	email.sendEmail(admin[0].email, 'Solicitud de apartado', htmlContent, 'Cafi service');
 
 	email.sendEmail(clienteBase.email, 'Apartado en proceso', htmlContentUser, tienda[0].nombre);
@@ -267,6 +275,13 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 			</div>
 		</div>
 		`;
+
+		sendNotification(
+			clienteBase.expoPushTokens,
+			"Tu apartado esta siendo procesado.",
+			"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
+			newApartado
+		);
 	
 		email.sendEmail(admin[0].email, 'Solicitud de apartado', htmlContent, 'Cafi service');
 	
@@ -1136,6 +1151,13 @@ apartadoCtrl.actualizarApartado = async (req, res) => {
 		default:
 			break;
 	}
+
+	sendNotification(
+		apartadoBase.cliente.expoPushTokens,
+		`Tu apartado a sido ${apatadoActualizado.estado}`,
+		mensaje,
+		apartadoBase
+	);
 
 	if(apartadoBase.apartadoMultiple.length){
 		let pedidos = ``;
