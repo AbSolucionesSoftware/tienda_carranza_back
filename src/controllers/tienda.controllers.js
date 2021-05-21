@@ -5,6 +5,7 @@ const Tienda = require('../models/Tienda');
 tiendaCtrl.subirImagen = async (req,res,next) => {
     imagen.upload(req, res, function (err) {
 		if (err) {
+            console.log(err);
 			res.status(404).json({ message: "formato de imagen no valido", err });
 		}else{
 			return next();

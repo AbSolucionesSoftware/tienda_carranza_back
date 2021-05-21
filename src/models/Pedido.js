@@ -31,6 +31,29 @@ const pedidosSchema = new mongoose.Schema(
 		estado_pedido: {
 			type: String
 		},
+		direccion: {
+			calle_numero: {
+				type: String
+			},
+			entre_calles: {
+				type: String
+			},
+			cp: {
+				type: String
+			},
+			colonia: {
+				type: String
+			},
+			ciudad: {
+				type: String
+			},
+			estado: {
+				type: String
+			},
+			pais: {
+				type: String
+			}
+		},
 		mensaje_admin: String,
 		pagado: Boolean,
 		url:{

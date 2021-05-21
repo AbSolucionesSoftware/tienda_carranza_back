@@ -90,10 +90,36 @@ pedidoCtrl.getPedidosUser = async (req, res, next) => {
 pedidoCtrl.generatePedidoPagado = async (req,res) => {
     try {
         const { pedidoCompleto } = req.body;
+        // console.log(pedidoCompleto.cliente.direccion);
+        const pedidoUpdate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente");
+        const direction = {
+            calle_numero: "",
+            entre_calles: "",
+            cp: "",
+            colonia:"",
+            ciudad: "",
+            estado: "",
+            pais: ""
+        };
+        if (pedidoUpdate) {
+            if (pedidoCompleto.cliente.direccion.length > 0) {
+                direction.calle_numero = pedidoUpdate.cliente.direccion[0].calle_numero;
+                direction.entre_calles = pedidoUpdate.cliente.direccion[0].entre_calles;
+                direction.cp = pedidoUpdate.cliente.direccion[0].cp;
+                direction.colonia = pedidoUpdate.cliente.direccion[0].colonia;
+                direction.ciudad = pedidoUpdate.cliente.direccion[0].ciudad;
+                direction.estado = pedidoUpdate.cliente.direccion[0].estado;
+                direction.pais = pedidoUpdate.cliente.direccion[0].pais;
+            }
+        }
+        await pedidoModel.findByIdAndUpdate(pedidoCompleto._id, {direccion: direction});
+
+        
+        // console.log(pedidoCompleto.cliente.direccion);
         await pedidoModel.findByIdAndUpdate(pedidoCompleto._id,{pagado: true, tipo_pago: "Pago en efectivo."});
 
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
-
+        // console.log(nuevoPedido);
         if(pedidoCompleto.carrito === true){
             await Carrito.findOneAndDelete({ cliente: pedidoCompleto.cliente._id });
         }
@@ -102,7 +128,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         const admin = await adminModel.find({});
         
         const tienda = await Tienda.find();
-        console.log("si entro a line 99;");
+        // console.log("si entro a line 99;");
         const pedidoPopulate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente").populate({
             path: 'pedido.producto',
             model: 'producto'
@@ -115,7 +141,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         
         
         for(let i = 0; i < pedidoPopulate.pedido.length; i++){
-            subTotal += parseFloat(pedidoPopulate.pedido[i].precio);
+            subTotal += parseFloat(pedidoPopulate.pedido[i].precio * pedidoPopulate.pedido[i].cantidad);
             pedidos += `
             <tr>
                 <td style="  padding: 15px; text-align: left;"><img style="max-width: 150px; display:block; margin:auto;" class="" src="${process.env.URL_IMAGEN_AWS}${pedidoPopulate.pedido[i].producto.imagen}" /></td>
@@ -194,7 +220,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             </div>
         </div>
         `;
-        console.log(pedidoPopulate.cliente.email);
+        // console.log(pedidoPopulate.cliente.email);
         
         email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
 
@@ -213,10 +239,11 @@ pedidoCtrl.createPedido = async (req, res, next) => {
     newpedido.mensaje_admin = "Tu pedido esta siendo procesado"; */
     try {
         const newpedido = new pedidoModel(req.body);
-        console.log(req.body);
+        // console.log(req.body);
         newpedido.pagado = false;
         await newpedido.save((err, userStored) => {
             if (err) {
+                // console.log(err);
                 res.status(500).json({ message: 'Ups, algo paso al registrar el usuario', err });
             } else {
                 if (!userStored) {
@@ -227,6 +254,7 @@ pedidoCtrl.createPedido = async (req, res, next) => {
             }
         });
     } catch (err) {
+        console.log(err);
         res.status(500).json({ message: 'Ups, algo paso al registrar el usuario', err });
         next();
     }

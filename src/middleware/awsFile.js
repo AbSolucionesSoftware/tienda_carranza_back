@@ -13,9 +13,9 @@ const s3 = new aws.S3();
 
 //Filtros que se aceptaran en los archivos
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg') {
+    console.log(file);
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/webp' ) {
         cb(null, true);
-        console.log(file.mimetype);
     } else {
         return cb(new Error('Formato no valido'));
     }
@@ -23,7 +23,7 @@ const fileFilter = (req, file, cb) => {
   
 
   //Aqui es donde conectamos al Bucket de Amazon S3 y le damos los filtros
-  const configuracionMulter ={
+  const configuracionMulter = {
     fileFilter,
     storage: multerS3({
       s3: s3,
@@ -34,6 +34,21 @@ const fileFilter = (req, file, cb) => {
       },
       key: function (req, file, cb) {
         cb(null, Date.now().toString())
+      }
+    }) 
+  };
+
+  const configuracionMulterInFilter = {
+    storage: multerS3({
+      s3: s3,
+      bucket: process.env.NAME_BUCKET_AMS,
+      acl: 'public-read',
+      metadata: function (req, file, cb) {
+        cb(null, {fieldName: 'Testing_metadata'});
+      },
+      key: function (req, file, cb) {
+        const type = file.originalname.split(".");
+        cb(null, Date.now().toString() + `.${type[1]}`)
       }
     }) 
   };
@@ -52,6 +67,8 @@ subir.eliminarImagen = (keyDeleted) => {
   }
 
 subir.upload = multer(configuracionMulter).single('imagen');
+
+subir.uploadFile = multer(configuracionMulterInFilter).single('file');
 
 
 module.exports = subir;
