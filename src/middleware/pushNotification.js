@@ -5,8 +5,7 @@ pushNotificationCtrl.sendNotification = async (expoPushTokens,title_push,body_pu
     try {
         expoPushTokens.map(async (moviles) => {
             const message = {
-                to: "ExponentPushToken[cahPy8DaDVWmKUePk7xvZ9]",
-                // to: moviles.expoPushToken,
+                to: `${moviles.expoPushToken}`,
                 sound: 'default',
                 title: `${title_push}`,
                 body: `${body_push}`,
