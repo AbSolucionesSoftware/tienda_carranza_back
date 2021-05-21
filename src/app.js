@@ -47,6 +47,7 @@ app.use('/api/politicasEnvio', require('./routes/politicasEnvio'));
 app.use('/api/banner', require('./routes/bannerCategoria'));
 app.use('/api/promocion', require('./routes/promocionesProducto'));
 app.use('/api/home', require('./routes/home'));
+app.use('/api/send',require('./routes/send'));
 
 //carpeta publica
 app.use(express.static('uploads'));

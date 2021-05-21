@@ -1,11 +1,11 @@
 const pedidoCtrl = {};
-
 const pedidoModel = require('../models/Pedido');
 const email = require('../middleware/sendEmail');
 const Tienda = require('../models/Tienda');
 const politicasModel = require('../models/PoliticasEnvio');
 const Carrito = require('../models/Carrito');
 const adminModel = require("../models/Administrador");
+const { sendNotification } = require("../middleware/pushNotification");
 
 pedidoCtrl.getPedidos = async (req, res, next) => {
     try {

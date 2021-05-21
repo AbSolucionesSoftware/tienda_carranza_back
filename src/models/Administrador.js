@@ -24,7 +24,12 @@ const adminSchema = new Schema(
 			type: Date,
 			default: Date.now
 		},
-		activo: Boolean
+		activo: Boolean,
+		expoPushTokens: [
+			{
+				expoPushToken: String
+			}
+		]
 	},
 	{
 		timestamps: true

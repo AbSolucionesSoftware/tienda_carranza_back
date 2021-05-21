@@ -17,6 +17,7 @@
     "connect-multiparty": "^2.2.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "expo-server-sdk": "^3.6.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.15",
@@ -26,6 +27,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
+    "node-fetch": "^2.6.1",
     "nodemailer": "^6.4.13",
     "shortid": "^2.2.15",
     "stripe": "^8.97.0"

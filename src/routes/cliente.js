@@ -16,7 +16,8 @@ const {
 	getClienteSinPaginacion,
 	restablecerPassword,
 	getVerificPass,
-	resetPass
+	resetPass,
+	desAunth
 } = require('../controllers/cliente.controllers');
 
 router.route('/todos').get(auth,getClienteSinPaginacion)
@@ -36,6 +37,8 @@ router.route('/').get(auth,getClientes).post(createCliente);
 router.route('/filtrados').get(auth,getClientesFiltrados);
 
 router.route('/:id').get(auth,getCliente).put(subirImagen,updateCliente).delete(auth,deleteCliente);
+
+router.route("/desauth/:id").post(desAunth);
 
 
 module.exports = router;

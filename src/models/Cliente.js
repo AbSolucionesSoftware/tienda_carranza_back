@@ -53,7 +53,12 @@ const ClienteSchema = new Schema({
 	imagen: String,
 	tipoSesion: String,
 	aceptarPoliticas: Boolean,
-	modalMunicipio: Boolean
+	modalMunicipio: Boolean,
+	expoPushTokens: [
+		{
+			expoPushToken: String
+		}
+	]
 });
 
 ClienteSchema.plugin(mongoodePaginate);

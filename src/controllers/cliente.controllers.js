@@ -331,13 +331,16 @@ clienteCtrl.createCliente = (req, res) => {
     console.log("Datos del body: ");
     console.log(req.body);
     if (req.body.aceptarPoliticas) {
+      const { expoPushToken } = req.body;
       const repeatContrasena = req.body.repeatContrasena;
       const contrasena = req.body.contrasena;
       const newCliente = new clienteModel(req.body);
       newCliente.active = false;
       newCliente.tipoSesion = "APIRestAB";
       newCliente.modalMunicipio = false;
-
+      if(expoPushToken){
+        newCliente.expoPushTokens = [{expoPushToken}];
+      }
       if (!contrasena || !repeatContrasena) {
         res.status(404).json({ message: "Las contrasenas son obligatorias" });
       } else {
@@ -593,7 +596,7 @@ clienteCtrl.deleteCliente = async (req, res, next) => {
 };
 
 clienteCtrl.authCliente = async (req, res, next) => {
-  const { email } = req.body;
+  const { email, expoPushToken = "" } = req.body;
   const contrasena = req.body.contrasena;
   const admin = await adminModel.findOne({ email });
   if (admin) {
@@ -602,6 +605,22 @@ clienteCtrl.authCliente = async (req, res, next) => {
         res.status(404).json({ message: "Contraseña incorrecta" });
         next();
       } else {
+        if(expoPushToken){
+          await adminModel.updateOne(
+            {
+              _id: admin._id
+            },
+            {
+              $addToSet: {
+                expoPushTokens: [
+                  {
+                    expoPushToken: expoPushToken
+                  }
+                ]
+              }
+            }
+          )
+        }
         const token = jwt.sign(
           {
             email: admin.email,
@@ -621,7 +640,6 @@ clienteCtrl.authCliente = async (req, res, next) => {
   } else {
     try {
       const cliente = await clienteModel.findOne({ email });
-
       if (!cliente) {
         res.status(404).json({ message: "Este usuario no existe" });
       } else {
@@ -633,6 +651,22 @@ clienteCtrl.authCliente = async (req, res, next) => {
             res.status(500).json({ message: "Contraseña incorrecta" });
             next();
           } else {
+            if(expoPushToken){
+              await clienteModel.updateOne(
+                {
+                  _id: cliente._id
+                },
+                {
+                  $addToSet: {
+                    expoPushTokens: [
+                      {
+                        expoPushToken: expoPushToken
+                      }
+                    ]
+                  }
+                }
+              )
+            }
             const token = jwt.sign(
               {
                 email: cliente.email,
@@ -662,13 +696,29 @@ clienteCtrl.authCliente = async (req, res, next) => {
 };
 
 clienteCtrl.authFirebase = async (req, res) => {
-  const { email, nombre, apellido, imagen, uid } = req.body;
+  const { email, nombre, apellido, imagen, expoPushToken } = req.body;
   console.log(req.body);
   const cliente = await clienteModel.findOne({ email });
   if (cliente) {
     if (!bcrypt.compareSync(email, cliente.contrasena)) {
       res.status(500).json({ message: "Contraseña incorrecta" });
     } else {
+      if(expoPushToken){
+        await clienteModel.updateOne(
+          {
+            _id: cliente._id
+          },
+          {
+            $addToSet: {
+              expoPushTokens: [
+                {
+                  expoPushToken: expoPushToken
+                }
+              ]
+            }
+          }
+        )
+      }
       const token = jwt.sign(
         {
           email: cliente.email,
@@ -693,6 +743,9 @@ clienteCtrl.authFirebase = async (req, res) => {
       newcliente.imagen = imagen;
       newcliente.tipoSesion = "FireBase";
       newcliente.aceptarPoliticas = true;
+      if(expoPushToken){
+        newCliente.expoPushTokens = [{expoPushToken}];
+      }
 
       bcrypt.hash(email, null, null, function (err, hash) {
         if (err) {
@@ -738,5 +791,35 @@ clienteCtrl.authFirebase = async (req, res) => {
     }
   }
 };
+
+clienteCtrl.desAunth = async (req,res) => {
+  try {
+    const { expoPushToken } = req.body;
+    const cliente = await clienteModel.findById(req.params.id);
+    if(cliente){
+      if(cliente.expoPushTokens.length > 0){
+          cliente.expoPushTokens.map((movil) => {
+              if(movil.expoPushToken === expoPushToken){
+                await clienteModel.updateOne(
+                  {
+                    _id: cliente._id
+                  },
+                  {
+                    $pull: {
+                      numeros: {
+                        _id: movil._id
+                      }
+                    }
+                  }
+                );
+              }
+          });
+      }
+    }
+    res.status(200).json({message: "correcto"})
+  } catch (error) {
+    
+  }
+}
 
 module.exports = clienteCtrl;
