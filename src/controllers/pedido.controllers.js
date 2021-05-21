@@ -100,6 +100,14 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             model: 'producto'
         });
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
+
+        sendNotification(
+            pedidoUpdate.cliente.expoPushTokens,
+            "Orden realizada",
+            "Tu orden esta en proceso, llegara en breve a tu domicilio.",
+            {}
+        );
+        
         const direction = {
             calle_numero: "",
             entre_calles: "",
@@ -208,12 +216,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         </div>
         `;
 
-        sendNotification(
-            pedidoUpdate.cliente.expoPushTokens,
-            "Orden realizada",
-            "Tu orden esta en proceso, llegara en breve a tu domicilio.",
-            {}
-        );
+        
 
         // console.log(pedidoPopulate.cliente.email);
         email.sendEmail(pedidoPopulate.cliente.email,"Orden realizada",htmlContentUser,tienda[0].nombre);
