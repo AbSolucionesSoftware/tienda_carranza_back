@@ -265,6 +265,14 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
         }else{
             const {estado_pedido,mensaje_admin,url,paqueteria,codigo_seguimiento} = req.body;
             if(estado_pedido === "Enviado"){
+                console.log(llego);
+                const tienda = await Tienda.find();
+                const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
+                    path: 'pedido.producto',
+                    model: 'producto'
+                });
+                const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
+
                  await pedidoModel.findByIdAndUpdate({ _id: req.params.id }, {
                     fecha_envio: new Date(),
                     estado_pedido,
@@ -274,26 +282,8 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     codigo_seguimiento
                 }, { new: true });
                 res.status(200).json({ message: 'Pedido Actualizado'});
-
-                console.log(pedidoPagado);
-                
-                await sendNotification(
-                    pedidoPagado.cliente.expoPushTokens,
-                    "Orden enviada",
-                    "Tu orden esta en camino, pronto llegara a tu domicilio.",
-                    pedidoCompleto
-                );
-
-                const tienda = await Tienda.find();
-                const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
-                    path: 'pedido.producto',
-                    model: 'producto'
-                })
-                const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
-                
                 let pedidos = ``;
                 let subTotal = 0;
-                
                 for(let i = 0; i < pedidoPopulate.pedido.length; i++){
                     subTotal += (parseFloat(pedidoPopulate.pedido[i].cantidad) * parseFloat(pedidoPopulate.pedido[i].precio));
                     pedidos += `
@@ -347,7 +337,12 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                         <p style="padding: 10px 0px;">Ya estamos trabajando para mandar tu pedido, si tienes alguna duda no dudes en contactarnos.</p>
                     </div>
                 </div>`;
-                
+                await sendNotification(
+                    pedidoPagado.cliente.expoPushTokens,
+                    "Orden enviada",
+                    "Tu orden esta en camino, pronto llegara a tu domicilio.",
+                    {}
+                );
                 email.sendEmail(pedidoPopulate.cliente.email,"Pedido realizado",htmlContentUser,tienda[0].nombre);
             }else if(estado_pedido === "Entregado"){
                 const pedido = await pedidoModel.findByIdAndUpdate({ _id: req.params.id }, {

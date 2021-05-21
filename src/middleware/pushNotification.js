@@ -19,7 +19,7 @@ pushNotificationCtrl.sendNotification = async (expoPushTokens,title_push,body_pu
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(message),
-              });
+              }).catch((err) => console.log(err));
         })
     } catch (error) {
         console.log(error);
