@@ -101,7 +101,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
         });
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
         console.log(pedidoUpdate.cliente.expoPushTokens);
-        sendNotification(
+        await sendNotification(
             pedidoUpdate.cliente.expoPushTokens,
             "Orden realizada",
             "Tu orden esta en proceso, llegara en breve a tu domicilio.",
