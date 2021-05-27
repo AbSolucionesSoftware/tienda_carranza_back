@@ -109,8 +109,8 @@ homeCtrl.homaQuerysShop = async (req,res) => {
 				res.status(200).json(home);
 				// console.log(arrayCategorias);
 			}
-			res.status(200).json(home);
 		);  
+		res.status(200).json(home);
     } catch (error) {
         res.status(500).json({ message: "Error en el servidor",error });	
     }
