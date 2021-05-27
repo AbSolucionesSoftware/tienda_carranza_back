@@ -106,7 +106,7 @@ homeCtrl.homaQuerysShop = async (req,res) => {
 					}
 				}
                 home.navbar.filtroNav = arrayCategorias;
-				res.status(200).json(home);
+				// res.status(200).json(home);
 				// console.log(arrayCategorias);
 			}
 		);  
