@@ -8,7 +8,7 @@ router.route('/auth')
 
 router.route('/')
     .get(auth,getAdmins)//Get all admin dates
-    .post(createAdmin);//Add a admin 
+    .post(auth,createAdmin);//Add a admin 
 
 
 router.route('/:id')
