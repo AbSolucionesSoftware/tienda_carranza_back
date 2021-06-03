@@ -38,6 +38,7 @@ pedidoCtrl.getPedidosAdmin = async (req, res, next) => {
 pedidoCtrl.getPedidosAdminFiltrados = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, filtro } = req.query;
+        console.log(req.query);
 		const options = {
 			page,
             limit: parseInt(limit),

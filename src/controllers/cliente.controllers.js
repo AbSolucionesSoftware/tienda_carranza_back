@@ -816,7 +816,7 @@ clienteCtrl.desAunth = async (req,res) => {
               }
             );
           }
-      });
+        });
       }
     }
 
@@ -842,7 +842,38 @@ clienteCtrl.desAunth = async (req,res) => {
     }
     res.status(200).json({message: "correcto"})
   } catch (error) {
-    
+    console.log(error);
+    res.status(500).json({ message: "Error en el servidor", err });
+  }
+}
+
+clienteCtrl.agreegatePushToken = async (req,res) => {
+  try {
+    const { expoPushToken } = req.body;
+    const admin = await adminModel.findById(req.params.idAdmin);
+    if(admin.expoPushTokens.length > 0){
+      admin.expoPushTokens.map(async (movil) => {
+        if(movil.expoPushToken === expoPushToken){
+          await adminModel.updateOne(
+            {
+              _id: admin._id
+            },
+            {
+              $addToSet: {
+                expoPushTokens: [
+                  {
+                    expoPushToken: expoPushToken
+                  }
+                ]
+              }
+            }
+          )
+        }
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error en el servidor", err });
   }
 }
 
