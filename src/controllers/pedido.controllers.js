@@ -439,7 +439,7 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     mensaje_admin
                 }, { new: true });
                 console.log(pedido);
-                res.status(200).json({ message: 'Mensaje del pedido actualizado'});
+                res.status(200).json({ message: 'Mensaje del pedido actualizado', body: req.body});
             }
         }
     } catch (err) {
