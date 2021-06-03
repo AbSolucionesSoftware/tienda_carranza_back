@@ -100,12 +100,25 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
             model: 'producto'
         });
         const nuevoPedido = await pedidoModel.findById(pedidoCompleto._id);
-        console.log(pedidoUpdate.cliente.expoPushTokens);
+        // console.log(pedidoUpdate.cliente.expoPushTokens);
         await sendNotification(
             pedidoUpdate.cliente.expoPushTokens,
             "Orden realizada",
             "Tu orden esta en proceso, llegara en breve a tu domicilio.",
-            {}
+            {
+                tipo: "Pedido",
+                item: pedidoUpdate
+            }
+        );
+
+        await sendNotification(
+            admin[0].expoPushTokens,
+            "Tienes una nueva orden",
+            "Tienes un nuevo pedido a domicilio.",
+            {
+                tipo: "Pedido",
+                item: pedidoUpdate
+            }
         );
 
         const direction = {
@@ -263,7 +276,8 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
         if(pedidoPagado.pagado === false){
             res.status(500).json({ message: 'Este pedido aun no a sido pagado'});
         }else{
-            const {estado_pedido,mensaje_admin,url,paqueteria,codigo_seguimiento} = req.body;
+            const { estado_pedido, mensaje_admin, url, paqueteria, codigo_seguimiento } = req.body;
+            console.log(req.body);
             if(estado_pedido === "Enviado"){
                 console.log("llego");
                 const tienda = await Tienda.find();
@@ -341,7 +355,10 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     pedidoPagado.cliente.expoPushTokens,
                     "Orden enviada",
                     "Tu orden esta en camino, pronto llegara a tu domicilio.",
-                    {}
+                    {
+                        tipo: "Pedido",
+                        item: pedidoPopulate
+                    }
                 );
                 email.sendEmail(pedidoPopulate.cliente.email,"Pedido realizado",htmlContentUser,tienda[0].nombre);
             }else if(estado_pedido === "Entregado"){
@@ -349,18 +366,21 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     fecha_envio: new Date(),
                     estado_pedido
                 }, { new: true });
-                res.status(200).json({ message: 'Pedido Actualizado'});
-                await sendNotification(
-                    pedidoPagado.cliente.expoPushTokens,
-                    "Orden entregada",
-                    "Tu orden a sido entregada, espero la disfrutes!!",
-                    {}
-                );
                 const tienda = await Tienda.find();
                 const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
                     path: 'pedido.producto',
                     model: 'producto'
                 })
+                await sendNotification(
+                    pedidoPagado.cliente.expoPushTokens,
+                    "Orden entregada",
+                    "Tu orden a sido entregada, espero la disfrutes!!",
+                    {
+                        tipo: "Pedido",
+                        item: pedidoPopulate
+                    }
+                );
+                res.status(200).json({ message: 'Pedido Actualizado'});
                 const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
                 let pedidos = ``;
                 let subTotal = 0;

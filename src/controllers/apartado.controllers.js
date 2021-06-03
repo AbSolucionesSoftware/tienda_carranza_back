@@ -158,11 +158,24 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 	</div>
 	`;
 
-	sendNotification(
+	await sendNotification(
 		clienteBase.expoPushTokens,
 		"Tu apartado esta siendo procesado.",
 		"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
-		newApartado
+		{
+			tipop: "Apartado",
+			item: newApartado
+		}
+	);
+
+	await sendNotification(
+		admin[0].expoPushTokens,
+		"Tienes un nuevo apartado",
+		"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
+		{
+			tipop: "Apartado",
+			item: newApartado
+		}
 	);
 
 	email.sendEmail(admin[0].email, 'Solicitud de apartado', htmlContent, 'Cafi service');
@@ -276,11 +289,21 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 		</div>
 		`;
 
-		sendNotification(
+		await sendNotification(
 			clienteBase.expoPushTokens,
 			"Tu apartado esta siendo procesado.",
 			"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 			newApartado
+		);
+
+		await sendNotification(
+			admin[0].expoPushTokens,
+			"Tienes un nuevo apartado",
+			"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
+			{
+				tipop: "Apartado",
+				item: newApartado
+			}
 		);
 	
 		email.sendEmail(admin[0].email, 'Solicitud de apartado', htmlContent, 'Cafi service');
@@ -629,7 +652,7 @@ apartadoCtrl.actualizarApartado = async (req, res) => {
 	apatadoActualizado.fecha_envio = new Date();
 	const apartadoBase = await Apartado.findById(req.params.idApartado).populate('producto cliente').populate({ path: 'apartadoMultiple.producto',model: 'producto'});
 	const tienda = await Tienda.find();
-
+	const admin = await adminModel.find({});
 	await Apartado.findOneAndUpdate({ _id: req.params.idApartado }, apatadoActualizado, (err, response) => {
 		if (err) {
 			res.status(500).json({ message: 'Hubo un error al actualizar el apartado', err });
@@ -1152,7 +1175,7 @@ apartadoCtrl.actualizarApartado = async (req, res) => {
 			break;
 	}
 
-	sendNotification(
+	await sendNotification(
 		apartadoBase.cliente.expoPushTokens,
 		`Tu apartado a sido ${apatadoActualizado.estado}`,
 		mensaje,
