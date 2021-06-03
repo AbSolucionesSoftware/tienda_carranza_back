@@ -796,7 +796,30 @@ clienteCtrl.desAunth = async (req,res) => {
   try {
     const { expoPushToken } = req.body;
     console.log(expoPushToken, req.params.id);
+    const admin = await adminModel.findById(req.params.id);
     const cliente = await clienteModel.findById(req.params.id);
+
+    if(admin){
+      if(admin.expoPushTokens.length > 0){
+        admin.expoPushTokens.map(async (movil) => {
+          if(movil.expoPushToken === expoPushToken){
+            await adminModel.updateOne(
+              {
+                _id: admin._id
+              },
+              {
+                $pull: {
+                  expoPushTokens: {
+                    _id: movil._id
+                  }
+                }
+              }
+            );
+          }
+      });
+      }
+    }
+
     if(cliente){
       if(cliente.expoPushTokens.length > 0){
           cliente.expoPushTokens.map(async (movil) => {
@@ -807,7 +830,7 @@ clienteCtrl.desAunth = async (req,res) => {
                   },
                   {
                     $pull: {
-                      numeros: {
+                      expoPushTokens: {
                         _id: movil._id
                       }
                     }
