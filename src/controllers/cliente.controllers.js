@@ -795,6 +795,7 @@ clienteCtrl.authFirebase = async (req, res) => {
 clienteCtrl.desAunth = async (req,res) => {
   try {
     const { expoPushToken } = req.body;
+    console.log(expoPushToken, req.params.id);
     const cliente = await clienteModel.findById(req.params.id);
     if(cliente){
       if(cliente.expoPushTokens.length > 0){
