@@ -435,6 +435,91 @@ pedidoCtrl.updateEstadoPedido = async (req, res, next) => {
                     </div>
                 </div>`;
                 email.sendEmail(pedidoPopulate.cliente.email,"Pedido realizado",htmlContentUser,tienda[0].nombre);
+            }else if(estado_pedido === "Tomado"){
+                console.log("llego");
+                const tienda = await Tienda.find();
+                const pedidoPopulate = await pedidoModel.findById(req.params.id).populate("cliente").populate({
+                    path: 'pedido.producto',
+                    model: 'producto'
+                });
+                const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
+
+                 await pedidoModel.findByIdAndUpdate({ _id: req.params.id }, {
+                    fecha_envio: new Date(),
+                    estado_pedido,
+                    mensaje_admin,
+                    url,
+                    paqueteria,
+                    codigo_seguimiento
+                }, { new: true });
+                res.status(200).json({ message: 'Pedido Actualizado'});
+                let pedidos = ``;
+                let subTotal = 0;
+                for(let i = 0; i < pedidoPopulate.pedido.length; i++){
+                    subTotal += (parseFloat(pedidoPopulate.pedido[i].cantidad) * parseFloat(pedidoPopulate.pedido[i].precio));
+                    pedidos += `
+                    <tr>
+                        <td style="  padding: 15px; text-align: left;"><img style="max-width: 150px; display:block; margin:auto;" class="" src="${process.env.URL_IMAGEN_AWS}${pedidoPopulate.pedido[i].producto.imagen}" /></td>
+                        <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;" > ${pedidoPopulate.pedido[i].producto.nombre}</p></td>
+                        <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;"> ${pedidoPopulate.pedido[i].cantidad}</p></td>
+                        <td style="  padding: 15px; text-align: left;">
+                            ${pedidoPopulate.pedido[i].numero ? pedidoPopulate.pedido[i].numero ? 
+                                `<p style="text-align: center; font-family: sans-serif;"> ${pedidoPopulate.pedido[i].numero}</p>` : 
+                                `<p style="text-align: center; font-family: sans-serif;"> ${pedidoPopulate.pedido[i].talla}</p>`:
+                                `<p style="text-align: center; font-family: sans-serif;"><span style="font-weight: bold;">No aplica</span></p>`
+                            }
+                        </td>
+                        <td style="  padding: 15px; text-align: left;"><p style="text-align: center; font-family: sans-serif;"> $ ${pedidoPopulate.pedido[i].precio}</p></td>
+                    </tr>
+                    `;
+                }
+    
+                const htmlContentUser = `
+                <div>
+                    <div style="margin:auto; max-width: 550px; height: 100px;">
+                        ${tienda[0].imagenLogo ? `<img style="max-width: 200px; display:block; margin:auto; padding: 10px 0px;" src="${process.env.URL_IMAGEN_AWS}${tienda[0].imagenLogo}" />`:""} 
+                    </div>
+                    
+                    <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tenemos noticias de tu edido!!</h3>
+                    <h4 style="text-align: center;  font-family: sans-serif; margin: 15px 15px;">Tu pedido fue tomado por el chef, esperalo pronto.</h4>
+            
+                    <h3 style="text-align: center;  font-family: sans-serif; margin: 15px 15px; font-weight: bold;">Detalle del pedido:</h3>
+                    <div style="margin:auto; max-width: 550px;">
+                        <table >
+                            <tr>
+                                
+                                <td style="  padding: 15px; text-align: left;"><strong>Producto</strong></td>
+                                <td style="  padding: 15px; text-align: left;"><strong></strong></td>
+                                <td style="  padding: 15px; text-align: left;"><strong>Cantidad</strong></td>
+                                <td style="  padding: 15px; text-align: left;"><strong>Medida</strong></td>
+                                <td style="  padding: 15px; text-align: left;"><strong>Precio</strong></td>
+                            </tr>
+                            ${pedidos}
+                        </table>
+                        <h3 style=" margin:auto; margin-left: 360px;"><strong>Sub total: </strong>$ ${subTotal}</h3>
+                        <h3 style=" margin:auto; margin-left: 360px;"><strong>Costo de envio: </strong>$ ${politicas[0].costoEnvio}</h3>
+                        ${subTotal >= politicas[0].promocionEnvio ? 
+                        `<h3 style=" color: #CC2300; margin:auto; margin-left: 360px;"><strong>Descuento: </strong>- $${politicas[0].descuento}</h3>`    
+                        :"" }
+                        <h3 style=" color: #2DD703; margin:auto; margin-left: 360px;"><strong>Total: </strong>$ ${pedidoPopulate.total}</h3>
+                        
+                    </div>
+                    <div style="margin:auto; max-width: 550px; height: 100px;">
+                        <p style="padding: 10px 0px;">Ya estamos trabajando para mandar tu pedido, si tienes alguna duda no dudes en contactarnos.</p>
+                    </div>
+                </div>
+                `;
+
+                await sendNotification(
+                    pedidoPagado.cliente.expoPushTokens,
+                    "Tu pedido a sido aceptado",
+                    "El chef a tomado tu orden, pronto estara en camino.",
+                    {
+                        tipo: "Pedido",
+                        item: pedidoPopulate
+                    }
+                );
+                email.sendEmail(pedidoPopulate.cliente.email,"Pedido realizado",htmlContentUser,tienda[0].nombre);
             }else{
                 const pedido = await pedidoModel.findByIdAndUpdate({ _id: req.params.id }, {
                     mensaje_admin
