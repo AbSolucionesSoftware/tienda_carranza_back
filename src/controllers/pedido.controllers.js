@@ -241,6 +241,7 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
 
     } catch (error) {
         res.status(500).json({ message: 'Ups, algo paso al generar la orden', error });
+        console.log(error);
     }
 }
 
