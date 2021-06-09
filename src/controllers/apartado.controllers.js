@@ -646,6 +646,7 @@ async function actualizarApartadoMultiple(apartadoMultiple,action) {
 	})
 }
 
+
 apartadoCtrl.actualizarApartado = async (req, res) => {
 	const apatadoActualizado = req.body;
 	
