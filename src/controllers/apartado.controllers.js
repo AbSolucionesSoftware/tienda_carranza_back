@@ -26,7 +26,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 					if (cantidad > numero.cantidad) {
 						res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 					} else {
-						await newApartado.save((err, response) => {
+						await newApartado.save(async (err, response) => {
 							if (err) {
 								res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 							} else {
@@ -65,7 +65,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 					if (cantidad > talla.cantidad) {
 						res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 					} else {
-						await newApartado.save((err, response) => {
+						await newApartado.save(async (err, response) => {
 							if (err) {
 								res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 							} else {
@@ -103,7 +103,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 		if (cantidad > datosProducto[0].cantidad) {
 			res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 		} else {
-			await newApartado.save((err, response) => {
+			await newApartado.save(async (err, response) => {
 				if (err) {
 					res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 				} else {
