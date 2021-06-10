@@ -41,7 +41,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 										{
 											tipo: "Apartado",
-											item: nuevo
+											item: JSON.stringify(nuevo)
 										}
 									);
 								
@@ -51,7 +51,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 										{
 											tipo: "Apartado",
-											item: nuevo
+											item: JSON.stringify(nuevo)
 										}
 									);
 								}
@@ -81,7 +81,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 										{
 											tipo: "Apartado",
-											item: nuevo
+											item: JSON.stringify(nuevo)
 										}
 									);
 								
@@ -91,7 +91,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 										{
 											tipo: "Apartado",
-											item: nuevo
+											item: JSON.stringify(nuevo)
 										}
 									);
 								}
@@ -120,7 +120,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 							"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 							{
 								tipo: "Apartado",
-								item: nuevo
+								item: JSON.stringify(nuevo)
 							}
 						);
 					
@@ -130,7 +130,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 							"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 							{
 								tipo: "Apartado",
-								item: nuevo
+								item: JSON.stringify(nuevo)
 							}
 						);
 					}
