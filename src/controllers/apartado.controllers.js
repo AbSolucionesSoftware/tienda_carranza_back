@@ -18,6 +18,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 	const clienteBase = await clienteModel.findById(cliente);
 	const admin = await adminModel.find({});
 	const tienda = await Tienda.find();
+	const apartadoPopulate = await Apartado.findById(newApartado._id);
 
 	if (req.body.medida) {
 		if (medida[0].numero) {
@@ -62,7 +63,6 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 			});
 		}
 	} else {
-		console.log(datosProducto);
 		if (cantidad > datosProducto[0].cantidad) {
 			res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 		} else {
@@ -164,7 +164,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 		"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 		{
 			tipop: "Apartado",
-			item: newApartado
+			item: apartadoPopulate
 		}
 	);
 
@@ -174,7 +174,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 		"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 		{
 			tipop: "Apartado",
-			item: newApartado
+			item: apartadoPopulate
 		}
 	);
 
@@ -195,6 +195,8 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 		const tienda = await Tienda.find();
 
 		await newApartado.save();
+
+		const apartadoPopulate = await Apartado.findById(newApartado._id).populate("producto").populate("apartadoMultiple.producto");
 
 		let pedidos = ``;
 		let subTotal = 0;
@@ -293,7 +295,10 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 			clienteBase.expoPushTokens,
 			"Tu apartado esta siendo procesado.",
 			"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
-			newApartado
+			{
+				tipo: "Apartado",
+				item: apartadoPopulate
+			}
 		);
 
 		await sendNotification(
@@ -301,8 +306,8 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 			"Tienes un nuevo apartado",
 			"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 			{
-				tipop: "Apartado",
-				item: newApartado
+				tipo: "Apartado",
+				item: apartadoPopulate
 			}
 		);
 	
