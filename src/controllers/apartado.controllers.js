@@ -40,7 +40,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Tu apartado esta siendo procesado.",
 										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 										{
-											tipop: "Apartado",
+											tipo: "Apartado",
 											item: nuevo
 										}
 									);
@@ -50,7 +50,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Tienes un nuevo apartado",
 										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 										{
-											tipop: "Apartado",
+											tipo: "Apartado",
 											item: nuevo
 										}
 									);
@@ -80,7 +80,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Tu apartado esta siendo procesado.",
 										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 										{
-											tipop: "Apartado",
+											tipo: "Apartado",
 											item: nuevo
 										}
 									);
@@ -90,7 +90,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Tienes un nuevo apartado",
 										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 										{
-											tipop: "Apartado",
+											tipo: "Apartado",
 											item: nuevo
 										}
 									);
@@ -119,7 +119,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 							"Tu apartado esta siendo procesado.",
 							"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 							{
-								tipop: "Apartado",
+								tipo: "Apartado",
 								item: nuevo
 							}
 						);
@@ -129,7 +129,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 							"Tienes un nuevo apartado",
 							"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 							{
-								tipop: "Apartado",
+								tipo: "Apartado",
 								item: nuevo
 							}
 						);
