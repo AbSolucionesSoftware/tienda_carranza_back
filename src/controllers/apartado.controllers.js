@@ -34,14 +34,14 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 									res.status(404).json({ message: 'Error al Crear apartado' });
 								} else {
 									res.status(200).json({ message: 'Apartado creado', response });
-									const nuevo = Apartado.findById(response._id).populate("producto");
+									const nuevo = await Apartado.findById(response._id).populate("producto");
 									await sendNotification(
 										clienteBase.expoPushTokens,
 										"Tu apartado esta siendo procesado.",
 										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 										{
 											tipo: "Apartado",
-											item: JSON.stringify(nuevo)
+											item: nuevo
 										}
 									);
 								
@@ -51,7 +51,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 										{
 											tipo: "Apartado",
-											item: JSON.stringify(nuevo)
+											item: nuevo
 										}
 									);
 								}
@@ -74,14 +74,14 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 									res.status(404).json({ message: 'Error al Crear apartado' });
 								} else {
 									res.status(200).json({ message: 'Apartado creado', response });
-									const nuevo = Apartado.findById(response._id).populate("producto");
+									const nuevo = await Apartado.findById(response._id).populate("producto");
 									await sendNotification(
 										clienteBase.expoPushTokens,
 										"Tu apartado esta siendo procesado.",
 										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 										{
 											tipo: "Apartado",
-											item: JSON.stringify(nuevo)
+											item: nuevo
 										}
 									);
 								
@@ -91,7 +91,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 										{
 											tipo: "Apartado",
-											item: JSON.stringify(nuevo)
+											item: nuevo
 										}
 									);
 								}
@@ -113,14 +113,14 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 						res.status(404).json({ message: 'Error al Crear apartado' });
 					} else {
 						res.status(200).json({ message: 'Apartado creado', response });
-						const nuevo = Apartado.findById(response._id).populate("producto");
+						const nuevo = await Apartado.findById(response._id).populate("producto");
 						await sendNotification(
 							clienteBase.expoPushTokens,
 							"Tu apartado esta siendo procesado.",
 							"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 							{
 								tipo: "Apartado",
-								item: JSON.stringify(nuevo)
+								item: nuevo
 							}
 						);
 					
@@ -130,7 +130,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 							"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 							{
 								tipo: "Apartado",
-								item: JSON.stringify(nuevo)
+								item: nuevo
 							}
 						);
 					}
