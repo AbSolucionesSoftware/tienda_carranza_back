@@ -92,7 +92,10 @@ pedidoCtrl.generatePedidoPagado = async (req,res) => {
     try {
         const { pedidoCompleto } = req.body;
         console.log(pedidoCompleto);
-        const pedidoUpdate = await pedidoModel.findById(pedidoCompleto._id).populate("cliente");
+        const pedidoUpdate = await pedidoModel.findById(pedidoCompleto._id).populate('cliente').populate({
+            path: 'pedido.producto',
+            model: 'producto'
+        });;
         const politicas = await politicasModel.find().populate("idTienda").populate("idAdministrador");
         const admin = await adminModel.find({});
         const tienda = await Tienda.find();
