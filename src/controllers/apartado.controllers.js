@@ -18,9 +18,6 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 	const clienteBase = await clienteModel.findById(cliente);
 	const admin = await adminModel.find({});
 	const tienda = await Tienda.find();
-	
-
-	const NuevoApartado = {};
 
 	if (req.body.medida) {
 		if (medida[0].numero) {
@@ -29,7 +26,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 					if (cantidad > numero.cantidad) {
 						res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 					} else {
-						NuevoApartado = await newApartado.save((err, response) => {
+						await newApartado.save((err, response) => {
 							if (err) {
 								res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 							} else {
@@ -37,6 +34,25 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 									res.status(404).json({ message: 'Error al Crear apartado' });
 								} else {
 									res.status(200).json({ message: 'Apartado creado', response });
+									await sendNotification(
+										clienteBase.expoPushTokens,
+										"Tu apartado esta siendo procesado.",
+										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
+										{
+											tipop: "Apartado",
+											item: response
+										}
+									);
+								
+									await sendNotification(
+										admin[0].expoPushTokens,
+										"Tienes un nuevo apartado",
+										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
+										{
+											tipop: "Apartado",
+											item: response
+										}
+									);
 								}
 							}
 						});
@@ -49,7 +65,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 					if (cantidad > talla.cantidad) {
 						res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 					} else {
-						NuevoApartado = await newApartado.save((err, response) => {
+						await newApartado.save((err, response) => {
 							if (err) {
 								res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 							} else {
@@ -57,6 +73,25 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 									res.status(404).json({ message: 'Error al Crear apartado' });
 								} else {
 									res.status(200).json({ message: 'Apartado creado', response });
+									await sendNotification(
+										clienteBase.expoPushTokens,
+										"Tu apartado esta siendo procesado.",
+										"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
+										{
+											tipop: "Apartado",
+											item: response
+										}
+									);
+								
+									await sendNotification(
+										admin[0].expoPushTokens,
+										"Tienes un nuevo apartado",
+										"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
+										{
+											tipop: "Apartado",
+											item: response
+										}
+									);
 								}
 							}
 						});
@@ -68,7 +103,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 		if (cantidad > datosProducto[0].cantidad) {
 			res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 		} else {
-			NuevoApartado = await newApartado.save((err, response) => {
+			await newApartado.save((err, response) => {
 				if (err) {
 					res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 				} else {
@@ -76,13 +111,30 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 						res.status(404).json({ message: 'Error al Crear apartado' });
 					} else {
 						res.status(200).json({ message: 'Apartado creado', response });
+						await sendNotification(
+							clienteBase.expoPushTokens,
+							"Tu apartado esta siendo procesado.",
+							"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
+							{
+								tipop: "Apartado",
+								item: response
+							}
+						);
+					
+						await sendNotification(
+							admin[0].expoPushTokens,
+							"Tienes un nuevo apartado",
+							"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
+							{
+								tipop: "Apartado",
+								item: response
+							}
+						);
 					}
 				}
 			});
 		}
 	}
-
-	const apartadoPopulate = await Apartado.findById(NuevoApartado._id).populate("producto");
 
 	const htmlContent = `
 	<div>
@@ -161,26 +213,6 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 		</div>
 	</div>
 	`;
-
-	await sendNotification(
-		clienteBase.expoPushTokens,
-		"Tu apartado esta siendo procesado.",
-		"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
-		{
-			tipop: "Apartado",
-			item: apartadoPopulate
-		}
-	);
-
-	await sendNotification(
-		admin[0].expoPushTokens,
-		"Tienes un nuevo apartado",
-		"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
-		{
-			tipop: "Apartado",
-			item: apartadoPopulate
-		}
-	);
 
 	email.sendEmail(admin[0].email, 'Solicitud de apartado', htmlContent, 'Cafi service');
 
