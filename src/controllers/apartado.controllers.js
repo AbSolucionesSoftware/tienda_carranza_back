@@ -18,7 +18,9 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 	const clienteBase = await clienteModel.findById(cliente);
 	const admin = await adminModel.find({});
 	const tienda = await Tienda.find();
-	const apartadoPopulate = await Apartado.findById(newApartado._id);
+	
+
+	const NuevoApartado = {};
 
 	if (req.body.medida) {
 		if (medida[0].numero) {
@@ -27,7 +29,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 					if (cantidad > numero.cantidad) {
 						res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 					} else {
-						await newApartado.save((err, response) => {
+						NuevoApartado = await newApartado.save((err, response) => {
 							if (err) {
 								res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 							} else {
@@ -47,7 +49,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 					if (cantidad > talla.cantidad) {
 						res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 					} else {
-						await newApartado.save((err, response) => {
+						NuevoApartado = await newApartado.save((err, response) => {
 							if (err) {
 								res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 							} else {
@@ -66,7 +68,7 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 		if (cantidad > datosProducto[0].cantidad) {
 			res.status(500).send({ message: 'No existen suficientes productos en el inventario' });
 		} else {
-			await newApartado.save((err, response) => {
+			NuevoApartado = await newApartado.save((err, response) => {
 				if (err) {
 					res.status(500).json({ message: 'Hubo un error al crear apartado', err });
 				} else {
@@ -79,6 +81,8 @@ apartadoCtrl.agregarApartado = async (req, res) => {
 			});
 		}
 	}
+
+	const apartadoPopulate = await Apartado.findById(NuevoApartado._id).populate("producto");
 
 	const htmlContent = `
 	<div>
@@ -194,9 +198,9 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 		const admin = await adminModel.find({});
 		const tienda = await Tienda.find();
 
-		await newApartado.save();
+		const nuevoApartado = await newApartado.save();
 
-		const apartadoPopulate = await Apartado.findById(newApartado._id).populate("producto").populate("apartadoMultiple.producto");
+		const apartadoPopulate = await Apartado.findById(nuevoApartado._id).populate("producto").populate("apartadoMultiple.producto");
 
 		let pedidos = ``;
 		let subTotal = 0;
