@@ -850,6 +850,7 @@ clienteCtrl.desAunth = async (req,res) => {
 clienteCtrl.agreegatePushToken = async (req,res) => {
   try {
     const { expoPushToken } = req.body;
+    console.log(req.body,req.params.idAdmin);
     const admin = await adminModel.findById(req.params.idAdmin);
     if(admin.expoPushTokens.length > 0){
       admin.expoPushTokens.map(async (movil) => {
