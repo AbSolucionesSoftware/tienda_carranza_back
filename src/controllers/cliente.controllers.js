@@ -850,28 +850,30 @@ clienteCtrl.desAunth = async (req,res) => {
 clienteCtrl.agreegatePushToken = async (req,res) => {
   try {
     const { expoPushToken } = req.body;
-    console.log(req.body,req.params.idAdmin);
+    // console.log(req.body,req.params.idAdmin);
     const admin = await adminModel.findById(req.params.idAdmin);
-    if(admin.expoPushTokens.length > 0){
-      admin.expoPushTokens.map(async (movil) => {
-        if(movil.expoPushToken === expoPushToken){
-          await adminModel.updateOne(
-            {
-              _id: admin._id
-            },
-            {
-              $addToSet: {
-                expoPushTokens: [
-                  {
-                    expoPushToken: expoPushToken
-                  }
-                ]
+    console.log(admin);
+    if(admin){
+      if(admin.expoPushTokens.length > 0){
+        admin.expoPushTokens.map(async (movil) => {
+          if(movil.expoPushToken === expoPushToken){
+            await adminModel.updateOne(
+              {
+                _id: admin._id
+              },
+              {
+                $addToSet: {
+                  expoPushTokens: [
+                    {
+                      expoPushToken: expoPushToken
+                    }
+                  ]
+                }
               }
-            }
-          )
-        }
-      });
-
+            )
+          }
+        });
+      }
     }
     res.status(200).json({message: "agregado"})
   } catch (error) {
