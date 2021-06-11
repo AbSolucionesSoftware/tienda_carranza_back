@@ -1260,7 +1260,7 @@ apartadoCtrl.actualizarApartado = async (req, res) => {
 
 	await sendNotification(
 		apartadoBase.cliente.expoPushTokens,
-		`Tu apartado a sido ${apatadoActualizado.estado}`,
+		`Tu apartado ha sido ${apatadoActualizado.estado}`,
 		mensaje,
 		apartadoBase
 	);
