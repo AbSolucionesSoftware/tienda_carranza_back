@@ -237,7 +237,7 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 
 		// const apartadoPopulate = await Apartado.findById(nuevoApartado._id).populate("producto").populate("apartadoMultiple.producto");
 
-		const apartadoPopulate = await Apartado.aggregate([
+		 await Apartado.aggregate([
 			{
 				$lookup: {
 					from: 'promocions',
@@ -270,7 +270,26 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 				if (err) {
 					res.send({ message: 'Error al obtener apartado', err });
 				} else {
-					return await Apartado.populate(transactions, { path: 'cliente producto' });
+					const apartadoPopulate = await Apartado.populate(transactions, { path: 'cliente producto' });
+					await sendNotification(
+						clienteBase.expoPushTokens,
+						"Tu apartado esta siendo procesado.",
+						"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
+						{
+							tipo: "Apartado",
+							item: apartadoPopulate
+						}
+					);
+			
+					await sendNotification(
+						admin[0].expoPushTokens,
+						"Tienes un nuevo apartado",
+						"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
+						{
+							tipo: "Apartado",
+							item: apartadoPopulate
+						}
+					);
 				}
 			});
 
@@ -367,25 +386,7 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 		</div>
 		`;
 
-		await sendNotification(
-			clienteBase.expoPushTokens,
-			"Tu apartado esta siendo procesado.",
-			"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
-			{
-				tipo: "Apartado",
-				item: apartadoPopulate
-			}
-		);
-
-		await sendNotification(
-			admin[0].expoPushTokens,
-			"Tienes un nuevo apartado",
-			"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
-			{
-				tipo: "Apartado",
-				item: apartadoPopulate
-			}
-		);
+		
 	
 		email.sendEmail(admin[0].email, 'Solicitud de apartado', htmlContent, 'Cafi service');
 	
