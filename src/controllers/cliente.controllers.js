@@ -854,22 +854,20 @@ clienteCtrl.agreegatePushToken = async (req,res) => {
     const admin = await adminModel.findById(req.params.idAdmin);
     console.log(admin);
     if(admin){
-        admin.expoPushTokens.map(async (movil) => {
-          await adminModel.updateOne(
-            {
-              _id: admin._id
-            },
-            {
-              $addToSet: {
-                expoPushTokens: [
-                  {
-                    expoPushToken: expoPushToken
-                  }
-                ]
+      await adminModel.updateOne(
+        {
+          _id: admin._id
+        },
+        {
+          $addToSet: {
+            expoPushTokens: [
+              {
+                expoPushToken: expoPushToken
               }
-            }
-          )
-        });
+            ]
+          }
+        }
+      )
     }
     res.status(200).json({message: "agregado"})
   } catch (error) {
