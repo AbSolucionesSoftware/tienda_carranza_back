@@ -277,7 +277,7 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 						"Te pedimos que tengas paciencia, en breve se contactaran contigo para mas detalle.",
 						{
 							tipo: "Apartado",
-							item: apartadoPopulate
+							item: apartadoPopulate[0]
 						}
 					);
 			
@@ -287,7 +287,7 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 						"Nuevo apartado solicitado, revisa el apartado, el cliente espera tu respuesta.",
 						{
 							tipo: "Apartado",
-							item: apartadoPopulate
+							item: apartadoPopulate[0]
 						}
 					);
 				}
