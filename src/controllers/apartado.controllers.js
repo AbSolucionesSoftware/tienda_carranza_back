@@ -235,7 +235,7 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 
 		const nuevoApartado = await newApartado.save();
 
-		const apartadoPopulate = await Apartado.findById(nuevoApartado._id).populate("producto").populate("apartadoMultiple.producto");
+		// const apartadoPopulate = await Apartado.findById(nuevoApartado._id).populate("producto").populate("apartadoMultiple.producto");
 
 		const apartadoPopulate = await Apartado.aggregate([
 			{
