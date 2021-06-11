@@ -237,6 +237,43 @@ apartadoCtrl.createApartadoMultiple = async (req,res) => {
 
 		const apartadoPopulate = await Apartado.findById(nuevoApartado._id).populate("producto").populate("apartadoMultiple.producto");
 
+		const apartadoPopulate = await Apartado.aggregate([
+			{
+				$lookup: {
+					from: 'promocions',
+					localField: 'producto',
+					foreignField: 'productoPromocion',
+					as: 'promocion'
+				}
+			},
+			{
+				$lookup: {
+					from: 'productos',
+					localField: 'apartadoMultiple.producto',
+					foreignField: '_id',
+					as: 'productosMultiple'
+				}
+			},
+			{
+				$match: {
+					_id: mongoose.Types.ObjectId(nuevoApartado._id)
+				}
+			},
+			{
+				$match: {
+					eliminado: false
+				}
+			}
+		])
+			.sort({ createdAt: -1 })
+			.exec(async function(err, transactions) {
+				if (err) {
+					res.send({ message: 'Error al obtener apartado', err });
+				} else {
+					return await Apartado.populate(transactions, { path: 'cliente producto' });
+				}
+			});
+
 		let pedidos = ``;
 		let subTotal = 0;
 
