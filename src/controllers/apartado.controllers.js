@@ -1258,12 +1258,53 @@ apartadoCtrl.actualizarApartado = async (req, res) => {
 			break;
 	}
 
-	await sendNotification(
-		apartadoBase.cliente.expoPushTokens,
-		`Tu apartado ha sido ${apatadoActualizado.estado}`,
-		mensaje,
-		apartadoBase
-	);
+	await Apartado.aggregate([
+		{
+			$lookup: {
+				from: 'promocions',
+				localField: 'producto',
+				foreignField: 'productoPromocion',
+				as: 'promocion'
+			}
+		},
+		{
+			$lookup: {
+				from: 'productos',
+				localField: 'apartadoMultiple.producto',
+				foreignField: '_id',
+				as: 'productosMultiple'
+			}
+		},
+		{
+			$match: {
+				_id: mongoose.Types.ObjectId(nuevoApartado._id)
+			}
+		},
+		{
+			$match: {
+				eliminado: false
+			}
+		}
+	])
+		.sort({ createdAt: -1 })
+		.exec(async function(err, transactions) {
+			if (err) {
+				res.send({ message: 'Error al obtener apartado', err });
+			} else {
+				const apartadoPopulate = await Apartado.populate(transactions, { path: 'cliente producto' });
+				await sendNotification(
+					apartadoBase.cliente.expoPushTokens,
+					`Tu apartado ha sido ${apatadoActualizado.estado}`,
+					mensaje,
+					{
+						tipo: "Apartado",
+						item: apartadoPopulate[0]
+					}
+				);
+			}
+		});
+
+	
 
 	if(apartadoBase.apartadoMultiple.length){
 		let pedidos = ``;
